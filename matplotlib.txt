@@ -1,0 +1,38 @@
+pip install pandas matplotlib
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Replace 'output.csv' with the path to your Pyseer output file
+data = pd.read_csv('output.csv')
+
+
+# Convert p-values to -log10(p-value) to enhance visibility on the plot
+data['-log10(pvalue)'] = -np.log10(data['pvalue'])
+
+# Create a new column 'chr' if your data includes chromosome or contig information
+# For simplicity, this example assumes all data belongs to the same chromosome
+data['chr'] = 'chr1'
+
+# Plotting
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.scatter(data['position'], data['-log10(pvalue)'], color='blue', s=10)  # s is the marker size
+ax.set_xlabel('Genomic position')
+ax.set_ylabel('-log10(p-value)')
+ax.set_title('Manhattan Plot')
+plt.axhline(y=-np.log10(0.05), color='red', linestyle='dashed', linewidth=1)  # significance line
+plt.show()
+
+# Assuming 'chr' is a column in your DataFrame
+chromosomes = sorted(data['chr'].unique())
+colors = ['red', 'blue', 'green', 'purple'] * (len(chromosomes) // 4 + 1)
+
+for i, chrom in enumerate(chromosomes):
+    chrom_data = data[data['chr'] == chrom]
+    plt.scatter(chrom_data['position'], chrom_data['-log10(pvalue)'], color=colors[i], s=10, label=chrom)
+
+plt.xlabel('Genomic position')
+plt.ylabel('-log10(p-value)')
+plt.title('Manhattan Plot Across Chromosomes')
+plt.axhline(y=-np.log10(0.05), color='red', linestyle='dashed', linewidth=1)  # significance line
+plt.legend(title='Chromosome')
+plt.show()
