@@ -1,3 +1,8 @@
+feature   pvalue   position
+gene1     0.001    1000
+gene2     0.05     1500
+gene3     0.2      2500
+
 pip install pandas matplotlib
 import pandas as pd
 import matplotlib.pyplot as plt
