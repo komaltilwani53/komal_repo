@@ -1,7 +1,17 @@
-feature   pvalue   position
-gene1     0.001    1000
-gene2     0.05     1500
-gene3     0.2      2500
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Read data from penicillin_snps.plot
+data = pd.read_csv('penicillin_snps.plot', sep='\t')
+
+# Plotting Manhattan plot
+plt.figure(figsize=(10, 6))
+plt.scatter(data['BP'], data['log10(p)'], color='blue', s=10)
+plt.axhline(y=-math.log10(0.05), color='red', linestyle='dashed', linewidth=1)  # significance line
+plt.xlabel('Genomic position')
+plt.ylabel('-log10(p-value)')
+plt.title('Manhattan Plot')
+plt.show()
 
 pip install pandas matplotlib
 import pandas as pd
