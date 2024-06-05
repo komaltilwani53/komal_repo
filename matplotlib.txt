@@ -1,3 +1,36 @@
+Hi Team,
+
+Appreciate if someone can advise me on this :
+
+These include the result files; the heritibitly score is o,  but the Q Q plot is siginificant. This contradicts itself or shouldn't be taken into account for more analysis.
+why the heritibility score is 0
+
+1. SNP and COG association with fixed effects model
+Read 602 phenotypes
+Detected binary phenotype
+Structure matrix has dimension (602, 602)
+Analysing 602 samples found in both phenotype and structure matrix
+4701 loaded variants
+2902 pre-filtered variants
+1799 tested variants
+1799 printed variants
+
+2.  K-mer association with mixed effects model
+Read 602 phenotypesDetected binary phenotypeSetting up LMMSimilarity matrix has dimension (602, 602)
+Analysing 602 samples found in both phenotype and similarity matrix h^2 = 0.00
+91704889 loaded variants
+5125486 pre-filtered variants
+86579403 tested variants
+86579403 printed variant
+(Patterns:       83884146
+Threshold:      5.96E-10 )
+
+Q-Q plot
+
+
+
+
+
 import matplotlib.pyplot as plt
 
 x = [1, 2, 3, 4, 5]
