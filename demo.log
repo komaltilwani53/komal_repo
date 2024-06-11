@@ -28,3 +28,33 @@ plt.savefig('amikacin_manhattan_plot.png', dpi=1200)
 
 # Show the plot
 plt.show()
+
+======================================FDR Method=========================
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from statsmodels.stats.multitest import fdrcorrection
+
+# Read the data from the snp.plot file
+df = pd.read_csv('amikacin_snps.plot', sep='\t')
+
+# Extract p-values from the log10(p) column
+df['p_value'] = 10 ** -df['log10(p)']
+
+# Apply FDR correction
+rejected, pvals_corrected = fdrcorrection(df['p_value'], alpha=0.05)
+
+# Add the FDR-corrected p-values to the DataFrame
+df['FDR_log10(p)'] = -np.log10(pvals_corrected)
+df['Significant'] = rejected
+
+# Plot Manhattan plot with FDR threshold
+plt.figure(figsize=(12, 6))
+sns.scatterplot(data=df, x='BP', y='log10(p)', hue='Significant', palette={True: 'red', False: 'blue'}, edgecolor=None)
+plt.axhline(y=-np.log10(0.05), color='red', linestyle='--', linewidth=1)
+plt.xlabel("Chromosome Position (BP)")
+plt.ylabel("-log10(p-value)")
+plt.title("Manhattan Plot for Amikacin GWAS with FDR Threshold")
+plt.savefig('amikacin_manhattan_plot_fdr.png', dpi=1200)
+plt.show()
+
