@@ -1,0 +1,30 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Read the data from the snp.plot file
+df = pd.read_csv('amikacin_snps.plot', sep='\t')
+
+# Print the DataFrame to check the contents
+print(df)
+
+# Define the threshold for significance
+threshold = 6.31
+
+# Create the Manhattan plot
+plt.figure(figsize=(12, 6))
+sns.scatterplot(data=df, x='BP', y='log10(p)', hue='log10(p)', palette='RdYlGn_r', edgecolor=None)
+
+# Add the significance threshold line
+plt.axhline(y=threshold, color='red', linestyle='--', linewidth=1)
+
+# Add labels and title
+plt.xlabel("Chromosome Position (BP)")
+plt.ylabel("-log10(p-value)")
+plt.title("Manhattan Plot for Amikacin GWAS")
+
+# Save the plot as an image file
+plt.savefig('amikacin_manhattan_plot.png', dpi=1200)
+
+# Show the plot
+plt.show()
