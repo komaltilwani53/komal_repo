@@ -1,3 +1,52 @@
+import requests
+
+# Function to fetch gene annotations from NCBI Gene
+def fetch_gene_annotations(chromosome, position):
+    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+    params = {
+        "db": "gene",
+        "term": f"{chromosome}[Gene Location] AND {position}[Base Position]",
+        "retmode": "json"
+    }
+    response = requests.get(base_url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        gene_ids = data.get("esearchresult", {}).get("idlist", [])
+        return gene_ids
+    else:
+        print(f"Error fetching data: {response.status_code}")
+        return None
+
+# Example function to process your input file
+def process_variants(input_file):
+    with open(input_file, 'r') as f:
+        for line in f:
+            if line.startswith('#') or line.strip() == '':
+                continue
+            parts = line.strip().split('\t')
+            variant_id = parts[0]
+            # Extract chromosome and position from your variant ID
+            chromosome, position, ref, alt = parse_variant_id(variant_id)
+            
+            # Fetch gene annotations
+            gene_ids = fetch_gene_annotations(chromosome, position)
+            
+            # Print or process gene annotations
+            if gene_ids:
+                print(f"Variant {variant_id} is associated with gene IDs: {gene_ids}")
+            else:
+                print(f"No gene annotations found for variant {variant_id}")
+
+# Example function to parse variant ID
+def parse_variant_id(variant_id):
+    parts = variant_id.split('_')
+    chromosome = parts[0]
+    position = parts[1]
+    return chromosome, position
+
+# Example usage
+input_file = "your_input_file.txt"
+process_variants(input_file)
 #!/bin/bash
 
 # Path to your annotation file
