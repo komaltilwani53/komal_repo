@@ -5,13 +5,13 @@ annotation_file="annotation.gff"
 
 # Loop through each variant in your sorted variant file
 while read line; do
-    # Extract variant position and adjust for 1-based index
+    # Extract variant information
     variant=$(echo $line | awk '{print $1}')
-    position=$(echo $variant | awk -F"[_.]" '{print $3}')
-    chromosome=$(echo $variant | awk -F"[_.]" '{print $2}')
+    chromosome=$(echo $variant | cut -d '_' -f 1)
+    position=$(echo $variant | cut -d '_' -f 2)
     
     # Find the corresponding gene in the annotation file
-    gene=$(awk -v chr=$chromosome -v pos=$position '$1 == chr && $4 <= pos && $5 >= pos && $3 == "gene" {print $9}' $annotation_file | awk -F";" '{print $1}' | awk -F"=" '{print $2}')
+    gene=$(awk -v chr="$chromosome" -v pos="$position" '$1 == chr && $4 <= pos && $5 >= pos && $3 == "gene" {print $9}' $annotation_file | cut -d '=' -f 2 | cut -d ';' -f 1)
     
     # Print variant and associated gene
     echo "$variant $gene"
