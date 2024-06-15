@@ -16,7 +16,7 @@ fetch_gene_annotations() {
     local response=$(curl -s "$request_url")
     
     # Extract gene IDs from JSON response
-    local gene_ids=$(echo "$response" | jq -r '.esearchresult.idlist[]')
+    local gene_ids=$(echo "$response" | grep -o '"IdList":[^]]*' | grep -o '[0-9]\+')
     
     echo "$gene_ids"
 }
@@ -24,8 +24,8 @@ fetch_gene_annotations() {
 # Process each variant in the input file
 process_variants() {
     while IFS=$'\t' read -r variant_id filter_pvalue lrt_pvalue beta beta_std_err variant_h2 notes; do
-        if [[ $variant_id == \#* ]]; then
-            continue  # Skip commented lines
+        if [[ $variant_id == \#* ]] || [[ -z $variant_id ]]; then
+            continue  # Skip commented or empty lines
         fi
         
         # Extract chromosome and position from variant_id
