@@ -1,96 +1,18 @@
 #!/bin/bash
 
-# Step 1: Convert variant data to VCF format
-INPUT="s_aureus_variants.txt"
-OUTPUT="s_aureus_variants.vcf"
-echo "##fileformat=VCFv4.2" > $OUTPUT
-echo "#CHROM POS ID REF ALT QUAL FILTER INFO" >> $OUTPUT
-awk 'NR>1 {split($1, a, "_"); print a[1]"\t"a[2]"\t.\t"a[3]"\t"a[4]"\t.\t.\t."}' $INPUT >> $OUTPUT
+# Path to your annotation file
+annotation_file="annotation.gff"
 
-# Step 2: Annotate VCF using snpEff
-SNPEFF_JAR="path/to/snpEff.jar"
-GENOME_VERSION="Staphylococcus_aureus_NCTC8325"  # Replace with your bacterial genome version
-VCF_INPUT="s_aureus_variants.vcf"
-VCF_OUTPUT="s_aureus_variants_annotated.vcf"
-java -jar $SNPEFF_JAR $GENOME_VERSION $VCF_INPUT > $VCF_OUTPUT
-
-# Step 3: Extract gene information
-ANNOTATED_VCF="s_aureus_variants_annotated.vcf"
-GENES_OUTPUT="s_aureus_genes_associated.txt"
-grep -v "^#" $ANNOTATED_VCF | awk -F'\t' '{split($8, info, ";"); for(i in info) {if (info[i] ~ /ANN=/) {split(info[i], ann, "|"); print $1"\t"$2"\t"ann[4]}}}' > $GENES_OUTPUT
-
-echo "Gene annotation completed. Results are in $GENES_OUTPUT"
-
-
-
-
-
-
-
-
-
-
-
-
-import matplotlib.pyplot as plt
-
-x = [1, 2, 3, 4, 5]
-y = [1, 4, 9, 16, 25]
-
-plt.plot(x, y)
-plt.show()
-
-==========================
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# Read data from penicillin_snps.plot
-data = pd.read_csv('penicillin_snps.plot', sep='\t')
-
-# Plotting Manhattan plot
-plt.figure(figsize=(10, 6))
-plt.scatter(data['BP'], data['log10(p)'], color='blue', s=10)
-plt.axhline(y=-math.log10(0.05), color='red', linestyle='dashed', linewidth=1)  # significance line
-plt.xlabel('Genomic position')
-plt.ylabel('-log10(p-value)')
-plt.title('Manhattan Plot')
-plt.show()
-=========================
-pip install pandas matplotlib
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# Replace 'output.csv' with the path to your Pyseer output file
-data = pd.read_csv('output.csv')
-
-
-# Convert p-values to -log10(p-value) to enhance visibility on the plot
-data['-log10(pvalue)'] = -np.log10(data['pvalue'])
-
-# Create a new column 'chr' if your data includes chromosome or contig information
-# For simplicity, this example assumes all data belongs to the same chromosome
-data['chr'] = 'chr1'
-
-# Plotting
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.scatter(data['position'], data['-log10(pvalue)'], color='blue', s=10)  # s is the marker size
-ax.set_xlabel('Genomic position')
-ax.set_ylabel('-log10(p-value)')
-ax.set_title('Manhattan Plot')
-plt.axhline(y=-np.log10(0.05), color='red', linestyle='dashed', linewidth=1)  # significance line
-plt.show()
-
-# Assuming 'chr' is a column in your DataFrame
-chromosomes = sorted(data['chr'].unique())
-colors = ['red', 'blue', 'green', 'purple'] * (len(chromosomes) // 4 + 1)
-
-for i, chrom in enumerate(chromosomes):
-    chrom_data = data[data['chr'] == chrom]
-    plt.scatter(chrom_data['position'], chrom_data['-log10(pvalue)'], color=colors[i], s=10, label=chrom)
-
-plt.xlabel('Genomic position')
-plt.ylabel('-log10(p-value)')
-plt.title('Manhattan Plot Across Chromosomes')
-plt.axhline(y=-np.log10(0.05), color='red', linestyle='dashed', linewidth=1)  # significance line
-plt.legend(title='Chromosome')
-plt.show()
+# Loop through each variant in your sorted variant file
+while read line; do
+    # Extract variant position and adjust for 1-based index
+    variant=$(echo $line | awk '{print $1}')
+    position=$(echo $variant | awk -F"[_.]" '{print $3}')
+    chromosome=$(echo $variant | awk -F"[_.]" '{print $2}')
+    
+    # Find the corresponding gene in the annotation file
+    gene=$(awk -v chr=$chromosome -v pos=$position '$1 == chr && $4 <= pos && $5 >= pos && $3 == "gene" {print $9}' $annotation_file | awk -F";" '{print $1}' | awk -F"=" '{print $2}')
+    
+    # Print variant and associated gene
+    echo "$variant $gene"
+done < sorted_variant_file.txt
