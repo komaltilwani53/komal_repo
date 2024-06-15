@@ -47,21 +47,3 @@ def parse_variant_id(variant_id):
 # Example usage
 input_file = "your_input_file.txt"
 process_variants(input_file)
-#!/bin/bash
-
-# Path to your annotation file
-annotation_file="annotation.gff"
-
-# Loop through each variant in your sorted variant file
-while IFS= read -r variant; do
-    # Extract variant information
-    variant_id=$(echo "$variant" | awk '{print $1}')
-    chromosome=$(echo "$variant_id" | awk -F '_' '{print $1}')
-    position=$(echo "$variant_id" | awk -F '_' '{print $2}')
-    
-    # Find the corresponding gene in the annotation file
-    gene=$(awk -v chr="$chromosome" -v pos="$position" '$1 == chr && $4 <= pos && $5 >= pos && $3 == "gene" {print $9}' "$annotation_file" | sed 's/;/\t/g' | awk -F '\t' '{print $1}' | sed 's/ID=//g')
-    
-    # Print variant and associated gene
-    echo "$variant_id $gene"
-done < sorted_variant_file.txt
